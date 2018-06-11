@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+</head>
+<body>
+<div id="div_1">23456    </div>
+<input id="val_1" type="text" value="6432  ">
+<script>
+    var a = "  123  ";
+    a.trim();
+    console.log(a.length);
+    console.log($.trim(a).length);
+    console.log($("#div_1").html().length)
+    console.log($.trim($("#div_1").html()).length)
+    console.log($("#val_1").val().length)
+    console.log($.trim($("#val_1").val()).length)
+</script>
+</body>
+</html>

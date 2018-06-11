@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>index_09</title>
+	<link rel="stylesheet" href="css/ol.css">
+	<script src="js/jquery-1.11.1.min.js"></script>
+	<script src="js/ol-debug.js"></script>
+	<style>
+		html,body{
+			margin:0;
+			padding:0;
+			width:100%;
+			height:100%;
+			position:relative;
+		}
+		#map{
+			width:100%;
+			height:100%;
+			position:absolute;
+			top:0; left:0;
+		}
+		#div_1{
+			position:absolute;
+			top:20px; left:40px;
+			background: rgba(255,0,0,0.5);
+			padding:10px;
+		}
+		#aside{
+			position:absolute;
+			top:100px; right:10px;
+		}
+		#aside div{
+			background: linear-gradient(to bottom,#00f,#fff,#00f);
+			margin-bottom:20px;
+			text-align:center;
+			height:30px;
+			line-height:30px;
+			padding:0  10px;
+			cursor:pointer;
+		}
+	</style>
+</head>
+<body>
+	<div id="map"></div>
+	<div id="div_1">
+		<div id="radio">
+			<label for="ipt_1">
+				<input id="ipt_1" type="radio" name="interaction" value="draw" checked>画图
+			</label>
+			<label for="ipt_2">
+				<input id="ipt_2" type="radio" name="interaction" value="modify">修改
+			</label>
+		</div>
+		<div style="margin-top:20px;">
+			<label>画图类型</label>
+			<select name="draw-type" id="draw-type">
+				<option value="Point">Point</option>
+				<option value="LineString">LineString</option>
+				<option value="Polygon">Polygon</option>
+				<option value="MultiPoint">MultiPoint</option>
+				<option value="MultiLineString">MultiLineString</option>
+				<option value="MultiPolygon">MultiPolygon</option>
+				<option value="Circle">Circle</option>
+			</select>
+		</div>
+	</div>
+	<div id="aside">
+		<div id="div_s">面积</div>
+		<div id="div_l">长度</div>
+		<div id="div_p">点标注</div>
+		<div id="div_e">结束</div>
+		<div id="div_c">清除</div>
+	</div>
+	<script>
+		var vecLayer = new ol.layer.Vector({
+			source:new ol.source.Vector(),
+			style:new ol.style.Style({//在此处添加样式
+				image:new ol.style.Circle({//画圆
+					radius:10,
+					fill:new ol.style.Fill({
+						color:"red"
+					})
+				}),
+				fill:new ol.style.Fill({
+					color:"rgba(255,255,255,0.4)"
+				}),
+				stroke:new ol.style.Stroke({
+					color:"#33ccff",
+					width:2
+				})
+			})
+		});
+
+		var map = new ol.Map({
+			target:"map",
+			layers:[
+				new ol.layer.Tile({
+					source:new ol.source.OSM()
+				}),
+				vecLayer
+			],
+			view:new ol.View({
+				projection:"EPSG:4326",
+				center:[104,30.5],
+				zoom:10
+			})
+		});
+
+		var Draw = {
+			init:function(){
+				map.addInteraction(this.Point);
+
+				this.Point.setActive(false); //调用Draw里的setActive()先把Point的交互抹掉
+				map.addInteraction(this.LineString);//再添加lineString交互
+
+				this.LineString.setActive(false);
+				map.addInteraction(this.Polygon);
+
+				this.Polygon.setActive(false);
+				map.addInteraction(this.MultiPoint);
+
+				this.MultiPoint.setActive(false);
+				map.addInteraction(this.MultiPolygon);
+
+				this.MultiPolygon.setActive(false);
+				map.addInteraction(this.MultiLineString);
+
+				this.MultiLineString.setActive(false);
+				map.addInteraction(this.Circle);
+				this.Circle.setActive(false);
+
+			},
+			Point:new ol.interaction.Draw({
+				source:vecLayer.getSource(),
+				type:"Point"
+			}),
+			LineString:new ol.interaction.Draw({
+				source:vecLayer.getSource(),
+				type:"LineString",
+				maxPoints:2
+			}),
+			Polygon:new ol.interaction.Draw({
+				source:vecLayer.getSource(),
+				type:"Polygon"
+			}),
+			MultiPoint:new ol.interaction.Draw({
+				source:vecLayer.getSource(),
+				type:"MultiPoint"
+			}),
+			MultiPolygon:new ol.interaction.Draw({
+				source:vecLayer.getSource(),
+				type:"MultiPolygon"
+			}),
+			MultiLineString:new ol.interaction.Draw({
+				source:vecLayer.getSource(),
+				type:"MultiLineString"
+			}),
+			Circle:new ol.interaction.Draw({
+				source:vecLayer.getSource(),
+				type:"Circle"
+			}),
+			setActive:function(active,type){
+				//var type = $("#draw-type").val();
+				console.log(type)
+				if(active){//为true时
+					//如果已有activeType,先把已经存在的activeType的interaction交互设为未激活
+					this.activeType && this[this.activeType].setActive(false);
+					//再设置当前选择的type为激活状态
+					this[type].setActive(true);
+					//如果type为Point,则找到调用Draw下的setActive设置此type类型的interaction为激活或者未激活
+					this.activeType = type;
+				}
+				else{
+					this.activeType && this[this.activeType].setActive(false);
+					this.activeType = null;
+				}
+			},
+			getActive:function(){
+				return this.activeType ? this[this.activeType].getActive():false;
+			}
+		};
+		Draw.init();
+		//Draw.setActive(true);//默认设置第一个Point的交互为true
+		/*$("#div_1").on("change",function(e){
+			var type = e.target.getAttribute("name");
+			var value = e.target.value;
+
+			if(type == "draw-type"){
+				Draw.getActive() && Draw.setActive(true);
+			}
+			else if(type == "interaction"){
+				if(value == "draw"){
+					Draw.setActive(true);
+				}
+				else if(value == "modify"){
+					console.log(4)
+				}
+			}
+		});*/
+
+		var snap = new ol.interaction.Snap({
+			source:vecLayer.getSource()
+		});
+		map.addInteraction(snap);
+
+		$("#div_s").on("click",function(){
+			Draw.setActive(true,"Polygon");
+		});
+
+		$("#div_l").on("click",function(){
+			Draw.setActive(true,"LineString");
+		});
+
+		$("#div_p").on("click",function(){
+			Draw.setActive(true,"Point");
+		});
+
+		$("#div_e").on("click",function(){
+			Draw.setActive(false);
+		});
+
+		$("#div_c").on("click",function(){
+			vecLayer.getSource().clear()
+		});
+	</script>
+</body>
+</html>

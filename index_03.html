@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>index_03</title>
+    <link rel="stylesheet" href="./css/ol.css" type="text/css">
+    <script type="text/javascript" src="./js/ol.js"></script>
+    <script type="text/javascript" src="./js/jquery-1.11.1.min.js"></script>
+    <style>
+        body{
+            overflow:hidden;
+        }
+        html,body,#map{
+            width:100%;
+            height:100%;
+            padding:0;
+            margin:0;
+            box-sizing:border-box;
+        }
+        #logo_1{
+            position:absolute;
+            right:200px;
+            bottom:50px;
+            z-index:100;
+        }
+    </style>
+</head>
+<body>
+<div id="map">
+<div id="logo_1"></div>
+</div>
+</body>
+<script>
+    var logoElement = document.createElement('a');
+    logoElement.href = 'https://www.baidu.com/';
+    logoElement.target = '_blank';
+
+    var logoImage = document.createElement('img');
+    logoImage.src = './img/logo.png';
+
+    logoElement.appendChild(logoImage);
+    var map = new ol.Map({
+        controls: ol.control.defaults({
+            attributionOptions: ({
+                collapsible: false,
+                target:'logo_1'
+            })
+        }),
+        layers:[
+            new ol.layer.Tile({
+                source:new ol.source.OSM()//地图源只能是OSM才出现logo
+            })
+        ],
+        target:'map',
+        view:new ol.View({
+            projection:'EPSG:4326',
+            center:[105.39,28.91],
+            zoom:10,
+            maxZoom:18,
+            minZoom:2
+        }),
+        logo:logoElement
+    })
+
+    /*var map = new ol.Map({
+        controls: ol.control.defaults({
+            attributionOptions: ({
+                collapsible: false
+            })
+        }),
+        layers: [
+            new ol.layer.Tile({
+                source: new ol.source.OSM()
+            })
+        ],
+        target: 'map',
+        view: new ol.View({
+            center: [0, 0],
+            zoom: 2
+        }),
+        logo: logoElement
+    });*/
+</script>
+</html>

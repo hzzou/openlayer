@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>index_05</title>
+    <link rel="stylesheet" href="css/ol.css">
+    <script type="text/javascript" src="js/ol-debug.js"></script>
+    <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+    <style>
+        body{
+            overflow:hidden;
+        }
+        html,body{
+            width:100%;
+            height:100%;
+            margin:0;
+            padding:0;
+            position:relative;
+        }
+        #map_1,#map_2{
+            width:100%;
+            height:48%;
+            position:absolute;
+            left:0;
+        }
+        #map_1{
+            top:0;
+        }
+        #map_2{
+            top:52%;
+        }
+        #btn_1{
+            position:absolute;
+            top:49%;
+            left:2%;
+        }
+        #btn_2{
+            position:absolute;
+            top:49%;
+            left:10%;
+        }
+    </style>
+</head>
+<body>
+<div id="map_1"></div>
+<div id="map_2"></div>
+<button type="button" id="btn_1">调换地图</button>
+<button type="button" id="btn_2">地图移动</button>
+<script>
+    var map_1 = map = new ol.Map({
+        layers:[
+                new ol.layer.Tile({source:new ol.source.OSM()})
+        ],
+        target:'map_1',
+        view:new ol.View({
+            projection:'EPSG:4326',
+            center:[105.43,28.17],
+            zoom:10,
+            maxZoom:18,
+            minZoom:2
+        })
+    });
+
+    var map_2 = map = new ol.Map({
+        layers:[
+                new ol.layer.Tile({
+                    source: new ol.source.XYZ({
+                        url:'http://t3.tianditu.cn/DataServer?T=img_w&X={x}&Y={y}&L={z}'
+                    })
+                })
+        ],
+        target:'map_2',
+        view:map_1.getView()
+    });
+
+    function swapMap(){
+        if(map_1.getTarget() === 'map_1'){
+            map_1.setTarget('map_2');
+            map_2.setTarget('map_1');
+        }
+        else{
+            map_1.setTarget('map_1');
+            map_2.setTarget('map_2');
+        }
+
+    }
+    $("#btn_1").on('click',function(){
+        swapMap();
+    });
+
+    $("#btn_2").on("click",function(){
+        var view = map.getView();
+        var mapCenter = view.getCenter();
+        console.log(mapCenter);
+        console.log(mapCenter[0]);
+        console.log(mapCenter[1]);
+        //地图左移，则需地图中心右移
+        mapCenter[0] +=5;
+        console.log(mapCenter)
+        view.setCenter(mapCenter);
+        map_1.render()
+        map_2.render()
+
+    });
+</script>
+</body>
+</html>
