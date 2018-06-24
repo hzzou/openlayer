@@ -163,6 +163,7 @@
 			setActive:function(active,type){
 				//var type = $("#draw-type").val();
 				console.log(type)
+				console.log(this.activeType)
 				if(active){//为true时
 					//如果已有activeType,先把已经存在的activeType的interaction交互设为未激活
 					this.activeType && this[this.activeType].setActive(false);
